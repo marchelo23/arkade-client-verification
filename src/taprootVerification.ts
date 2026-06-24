@@ -11,7 +11,23 @@
 import { hex } from "@scure/base";
 import { taprootTweakPubkey, tagSchnorr, compareBytes } from "@scure/btc-signer/utils.js";
 import { tapLeafHash } from "@scure/btc-signer/payment.js";
+import { sha256 } from "@noble/hashes/sha2.js";
 import { VtxoVerificationError, type DAGNode } from "./vtxoDAGVerification.js";
+
+/**
+ * Compute the txid of a Transaction (including unsigned PSBTs).
+ * @scure/btc-signer@1.x throws "Transaction is not finalized" when accessing
+ * `.id` on unsigned transactions. We compute manually:
+ * txid = REVERSE(SHA256d(non-witness serialization)).
+ */
+function computeTxid(node: DAGNode): string {
+  const rawBytes = node.tx.toBytes(true, false);
+  const hash1 = sha256(rawBytes);
+  const hash2 = sha256(hash1);
+  const reversed = new Uint8Array(hash2);
+  reversed.reverse();
+  return hex.encode(reversed);
+}
 
 /**
  * BIP 341 TapBranch hash: H_TapBranch(min(a,b) || max(a,b))
@@ -43,7 +59,7 @@ export function verifyNodeTaproot(node: DAGNode): void {
 
   if (!internalKey) {
     throw new VtxoVerificationError(
-      `Transaction ${node.tx.id} is missing tapInternalKey (BIP 341 violation)`,
+      `Transaction ${computeTxid(node)} is missing tapInternalKey (BIP 341 violation)`,
       "MISSING_TAPROOT_METADATA"
     );
   }
@@ -56,7 +72,7 @@ export function verifyNodeTaproot(node: DAGNode): void {
     
     if (!equalBytes(witnessUtxo.script, expectedScript)) {
       throw new VtxoVerificationError(
-        `Invalid Taproot Tweak for transaction ${node.tx.id}`,
+        `Invalid Taproot Tweak for transaction ${computeTxid(node)}`,
         "INVALID_TAPROOT_TWEAK"
       );
     }
@@ -75,10 +91,10 @@ export function verifyNodeTaproot(node: DAGNode): void {
       const leafVersion = scriptWithVersion[scriptWithVersion.length - 1];
 
       // 2a. Verify Merkle Proof
-      verifyMerkleProof(merkleRoot, script, cb, node.tx.id, leafVersion);
+      verifyMerkleProof(merkleRoot, script, cb, computeTxid(node), leafVersion);
       
       // 2b. Enforce Ark Exit Policy
-      verifyArkExitPolicy(script, node.tx.id);
+      verifyArkExitPolicy(script, computeTxid(node));
     }
   }
 }

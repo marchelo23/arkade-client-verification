@@ -3,6 +3,16 @@ import { Transaction } from "@scure/btc-signer/transaction.js";
 import { hex, base64 } from "@scure/base";
 import { schnorr } from "@noble/curves/secp256k1.js";
 import { taprootTweakPubkey, taprootTweakPrivKey } from "@scure/btc-signer/utils.js";
+import { sha256 } from "@noble/hashes/sha2.js";
+
+/** Compute Bitcoin txid for unsigned PSBTs (SHA256d of non-witness bytes, reversed). */
+function computeTxid(tx: Transaction): string {
+  const rawBytes = tx.toBytes(true, false);
+  const h1 = sha256(rawBytes);
+  const h2 = sha256(h1);
+  const rev = new Uint8Array(h2); rev.reverse();
+  return hex.encode(rev);
+}
 
 // -- COPY FROM TEST HELPERS --
 export const TEST_PRIVKEYS = Array.from({ length: 10 }, (_, i) => {
@@ -73,7 +83,7 @@ export function createVirtualTx(
     });
   }
 
-  return { tx, psbtB64: base64.encode(tx.toPSBT()), txid: tx.id };
+  return { tx, psbtB64: base64.encode(tx.toPSBT()), txid: computeTxid(tx) };
 }
 
 export function signVirtualTx(tx: Transaction, inputIndex: number, privKey: Uint8Array, prevOuts: { script: Uint8Array, amount: bigint }[]) {

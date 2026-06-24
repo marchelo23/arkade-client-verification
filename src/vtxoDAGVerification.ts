@@ -27,6 +27,7 @@
 
 import { Transaction } from "@scure/btc-signer/transaction.js";
 import { hex, base64 } from "@scure/base";
+import { sha256 } from "@noble/hashes/sha2.js";
 import { verifyDAGSignatures } from "./signatureVerification.js";
 import { verifyNodeTaproot } from "./taprootVerification.js";
 import { verifyDAGTimelocks, type ChainState } from "./timelockVerification.js";
@@ -40,6 +41,23 @@ import { ConcurrencyLimiter, VerificationCache } from "./performanceUtils.js";
 //
 const globalVerificationCache = new VerificationCache();
 const globalOnchainLimiter = new ConcurrencyLimiter(10); // Max 10 concurrent RPCs
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+/**
+ * Compute the txid of a Transaction (including unsigned PSBTs).
+ * @scure/btc-signer@1.x throws "Transaction is not finalized" when accessing
+ * `.id` or `.hash` on unsigned transactions. We compute manually:
+ * txid = REVERSE(SHA256d(non-witness serialization)).
+ */
+function computeTxid(tx: Transaction): string {
+  const rawBytes = tx.toBytes(true, false);
+  const hash1 = sha256(rawBytes);
+  const hash2 = sha256(hash1);
+  const reversed = new Uint8Array(hash2);
+  reversed.reverse();
+  return hex.encode(reversed);
+}
 
 // ─── Types aligned with Arkade SDK (providers/indexer.ts, wallet/index.ts) ───
 
@@ -368,7 +386,7 @@ export async function reconstructAndValidateVtxoDAG(
       );
     }
 
-    if (tx.id !== link.txid) throw Errors.TXID_MISMATCH(link.txid, tx.id);
+    if (computeTxid(tx) !== link.txid) throw Errors.TXID_MISMATCH(link.txid, computeTxid(tx));
     txMap.set(link.txid, { tx, rawPsbt, chainTx: link });
   }
 

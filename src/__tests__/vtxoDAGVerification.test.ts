@@ -36,6 +36,7 @@ import {
 } from "../hashPreimageVerification.js";
 import { sha256 } from "@noble/hashes/sha2.js";
 import { ripemd160 } from "@noble/hashes/legacy.js";
+import { hex as _hex } from "@scure/base";
 
 // ─── Test Helpers ────────────────────────────────────────────────────────────
 
@@ -58,6 +59,23 @@ export function makeP2TRScript(seed: number = 0, merkleRoot?: Uint8Array): Uint8
 
 export function fakeCommitmentTxid(seed: number = 0): string {
   return (seed.toString(16) + "a").repeat(64).slice(0, 64);
+}
+
+/**
+ * Compute a Bitcoin txid from an unsigned Transaction.
+ * @scure/btc-signer@1.x throws "Transaction is not finalized" when accessing
+ * `.id` on unsigned PSBTs. We calculate it manually:
+ * txid = REVERSE(SHA256d(non-witness-serialization)).
+ */
+export function computeTxid(tx: Transaction): string {
+  // toBytes(isExtended=true, isSigned=false) gives the raw non-witness bytes
+  const rawBytes = tx.toBytes(true, false);
+  const hash1 = sha256(rawBytes);
+  const hash2 = sha256(hash1);
+  // Bitcoin txid is displayed in little-endian (reversed)
+  const reversed = new Uint8Array(hash2);
+  reversed.reverse();
+  return _hex.encode(reversed);
 }
 
 export function createVirtualTx(
@@ -107,7 +125,7 @@ export function createVirtualTx(
     });
   }
 
-  return { tx, psbtB64: base64.encode(tx.toPSBT()), txid: tx.id };
+  return { tx, psbtB64: base64.encode(tx.toPSBT()), txid: computeTxid(tx) };
 }
 
 export function signVirtualTx(tx: Transaction, inputIndex: number, privKey: Uint8Array, prevOuts: { script: Uint8Array, amount: bigint }[]) {
