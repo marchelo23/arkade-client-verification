@@ -4,7 +4,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: arkade-vtxo-test
+    container_name: arkade-client-test
     command: ["pnpm", "test"]
     environment:
       - NODE_ENV=test
@@ -14,7 +14,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: arkade-vtxo-sec
+    container_name: arkade-client-sec
     command: ["pnpm", "run", "test:sec"]
     environment:
       - NODE_ENV=test
@@ -24,7 +24,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: arkade-vtxo-stress
+    container_name: arkade-client-stress
     command: ["pnpm", "run", "test:stress"]
     environment:
       - NODE_ENV=test
@@ -34,7 +34,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: arkade-vtxo-audit
+    container_name: arkade-client-audit
     command: ["pnpm", "run", "audit:ci"]
     environment:
       - NODE_ENV=test
@@ -44,7 +44,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: arkade-vtxo-dev
+    container_name: arkade-client-dev
     volumes:
       - .:/app
       - /app/node_modules

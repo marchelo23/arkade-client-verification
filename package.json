@@ -1,5 +1,5 @@
 {
-  "name": "ln-markets-arkade-vtxo",
+  "name": "@arkade-os/client-verification",
   "version": "1.0.0",
   "type": "module",
   "main": "dist/vtxoDAGVerification.js",
@@ -12,7 +12,7 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit",
     "audit:ci": "bash audit_ci.sh",
-    "docker:build": "docker build -t arkade-vtxo-verification .",
+    "docker:build": "docker build -t arkade-client-verification .",
     "docker:test": "docker compose run --rm test",
     "docker:audit": "docker compose run --rm audit"
   },
@@ -28,7 +28,7 @@
   ],
   "author": "Marcelo Adrián Guerra Najarro",
   "license": "MIT",
-  "description": "Client-side VTXO & Sovereign Exit verification for the Arkade SDK",
+  "description": "Zero-trust client-side VTXO verification and sovereign exit engine for the Arkade protocol",
   "dependencies": {
     "@noble/curves": "^1.9.7",
     "@noble/hashes": "^1.8.0",

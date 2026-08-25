@@ -13,8 +13,8 @@ docker compose run --rm test
 ```
 Or with plain Docker:
 ```bash
-docker build -t arkade-vtxo-verification .
-docker run --rm arkade-vtxo-verification
+docker build -t arkade-client-verification .
+docker run --rm arkade-client-verification
 ```
 
 ### Run Adversarial Blackbox Security Tests
@@ -45,8 +45,8 @@ If running with Podman, the setup is 100% compatible:
 ```bash
 podman-compose run --rm test
 # or
-podman build -t arkade-vtxo-verification .
-podman run --rm arkade-vtxo-verification
+podman build -t arkade-client-verification .
+podman run --rm arkade-client-verification
 ```
 
 ---

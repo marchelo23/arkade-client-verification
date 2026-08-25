@@ -1,4 +1,4 @@
-# Arkade SDK: Client-Side VTXO & Sovereign Exit Verification Pipeline
+# Arkade Client Verification: Zero-Trust VTXO & Sovereign Exit Engine
 
 [![Tests](https://img.shields.io/badge/tests-104%2F104%20passing-brightgreen.svg)](file:///home/chelo/antigravity/ARK/src/__tests__)
 [![Runtime](https://img.shields.io/badge/node-%3E%3D22.12.0-blue.svg)](https://nodejs.org)
@@ -145,7 +145,7 @@ docker compose run --rm audit
 Hook executed upon receiving a VTXO to perform end-to-end verification and persist the sovereign exit plan.
 
 ```typescript
-import { onReceiveVtxo, type StorageProvider } from "arkade-vtxo-verification";
+import { onReceiveVtxo, type StorageProvider } from "@arkade-os/client-verification";
 
 const myStorage: StorageProvider = {
   getItem: async (key: string) => localStorage.getItem(key),
@@ -168,7 +168,7 @@ console.log("Topological exit sequence depth:", result.exitPlan.transactions.len
 Pure verification function that reconstructs the DAG and validates all cryptographic proofs.
 
 ```typescript
-import { verifyVtxoDag } from "arkade-vtxo-verification";
+import { verifyVtxoDag } from "@arkade-os/client-verification";
 
 const verification = await verifyVtxoDag({
   vtxoOutpoint: { txid: "...", vout: 0 },
