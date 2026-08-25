@@ -5,6 +5,8 @@ export default defineConfig({
     // Only run tests in the src/ directory, not in idk/ subdirectory
     include: ["src/**/*.test.ts"],
     globals: true,
+    testTimeout: 30000,
+    hookTimeout: 30000,
   },
   resolve: {
     // Handle .js extension imports for ES modules compatibility

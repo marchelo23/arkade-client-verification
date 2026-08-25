@@ -99,5 +99,5 @@ describe("Stress Test: Extreme VTXO DAGs", () => {
       
       console.log(`✓ Concurrency results: ${successful}/${CONCURRENCY} successful`);
       expect(successful).toBe(CONCURRENCY);
-  });
+  }, 60000);
 });

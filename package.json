@@ -27,7 +27,7 @@
     "zero-trust"
   ],
   "author": "Marcelo Adrián Guerra Najarro",
-  "license": "ISC",
+  "license": "MIT",
   "description": "Client-side VTXO & Sovereign Exit verification for the Arkade SDK",
   "dependencies": {
     "@noble/curves": "^1.9.7",
@@ -39,6 +39,6 @@
     "@types/node": "25.5.0",
     "typescript": "^5.9.3",
     "undici": "^6.27.0",
-    "vitest": "^2.1.9"
+    "vitest": "^3.2.7"
   }
 }

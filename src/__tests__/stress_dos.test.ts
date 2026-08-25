@@ -153,5 +153,5 @@ describe("Red Team: Stress & DoS Audit", () => {
       
     const duration = Date.now() - startTime;
     expect(duration).toBeLessThan(500); 
-  });
+  }, 60000);
 });

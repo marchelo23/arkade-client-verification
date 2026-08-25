@@ -207,4 +207,4 @@ For in-depth cryptographic and architectural specifications, consult:
 ---
 
 ## ⚖️ License
-ISC License. Built for the Arkade Ecosystem and Plan B Network.
+[MIT License](file:///home/chelo/antigravity/ARK/LICENSE). Open-source software built for the Arkade Ecosystem and Plan B Network.
