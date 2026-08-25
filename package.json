@@ -1,24 +1,34 @@
 {
-  "name": "arkade-vtxo-verification",
+  "name": "ln-markets-arkade-vtxo",
   "version": "1.0.0",
   "type": "module",
   "main": "dist/vtxoDAGVerification.js",
+  "packageManager": "pnpm@10.30.1",
   "scripts": {
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:sec": "vitest run src/__tests__/blackboxSec.test.ts",
+    "test:stress": "vitest run src/__tests__/stress_dos.test.ts",
     "build": "tsc",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "audit:ci": "bash audit_ci.sh",
+    "docker:build": "docker build -t arkade-vtxo-verification .",
+    "docker:test": "docker compose run --rm test",
+    "docker:audit": "docker compose run --rm audit"
   },
   "keywords": [
     "ark",
+    "arkade",
     "bitcoin",
     "vtxo",
     "verification",
-    "taproot"
+    "taproot",
+    "musig2",
+    "zero-trust"
   ],
   "author": "Marcelo Adrián Guerra Najarro",
   "license": "ISC",
-  "description": "Client-side VTXO verification for the Arkade SDK (Plan B Network Technical Assignment)",
+  "description": "Client-side VTXO & Sovereign Exit verification for the Arkade SDK",
   "dependencies": {
     "@noble/curves": "^1.9.7",
     "@noble/hashes": "^1.8.0",

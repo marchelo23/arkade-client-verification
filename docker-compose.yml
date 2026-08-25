@@ -1,0 +1,53 @@
+services:
+  # ─── Full Test Suite Runner ────────────────────────────────────────────────
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arkade-vtxo-test
+    command: ["pnpm", "test"]
+    environment:
+      - NODE_ENV=test
+
+  # ─── Adversarial Blackbox & Security Audit Runner ──────────────────────────
+  sec:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arkade-vtxo-sec
+    command: ["pnpm", "run", "test:sec"]
+    environment:
+      - NODE_ENV=test
+
+  # ─── Stress & DoS (1,000+ Node DAGs) Runner ────────────────────────────────
+  stress:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arkade-vtxo-stress
+    command: ["pnpm", "run", "test:stress"]
+    environment:
+      - NODE_ENV=test
+
+  # ─── Complete CI Audit Pipeline ────────────────────────────────────────────
+  audit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arkade-vtxo-audit
+    command: ["pnpm", "run", "audit:ci"]
+    environment:
+      - NODE_ENV=test
+
+  # ─── Live Development Watcher (Host Volume Mount) ──────────────────────────
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: arkade-vtxo-dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: ["pnpm", "run", "test:watch"]
+    environment:
+      - NODE_ENV=development
