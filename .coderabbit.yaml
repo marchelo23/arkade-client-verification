@@ -1,0 +1,41 @@
+language: en-US
+
+reviews:
+  profile: assertive
+  request_changes_workflow: true
+  allow_author_approval: false
+  review_details: true
+  fail_commit_status: true
+  auto_review:
+    enabled: true
+    drafts: true
+    auto_incremental_review: true
+    auto_pause_after_reviewed_commits: 0
+    base_branches: [".*"]
+  pre_merge_checks:
+    override_requested_reviewers_only: true
+    docstrings:
+      mode: error
+      threshold: 100
+    title:
+      mode: error
+      requirements: >-
+        Use a specific, descriptive title that states what changes. Do not use
+        placeholders such as WIP, TODO, or fix stuff.
+    description:
+      mode: error
+    issue_assessment:
+      mode: error
+  path_instructions:
+    - path: "src/**"
+      instructions: >-
+        Scrutinize untrusted ASP and indexer data, VTXO DAG ancestry and cycles,
+        satoshi conservation, BIP-340/341 Taproot proofs, BIP-68 timelocks,
+        transaction ordering, and sovereign exit persistence. Require explicit
+        failure for unverifiable anchors, malformed payloads, unsafe fallbacks,
+        integer boundary errors, and missing adversarial test coverage.
+    - path: ".github/workflows/**"
+      instructions: >-
+        Check trigger coverage, least-privilege permissions, untrusted PR code
+        and fork secrets, action supply chains, and whether failed or incomplete
+        scans can incorrectly pass CI.

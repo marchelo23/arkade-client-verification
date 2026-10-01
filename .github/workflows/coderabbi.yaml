@@ -1,0 +1,62 @@
+name: CodeRabbit Strict Review
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  coderabbit:
+    name: Deep review (zero findings)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require CodeRabbit Agentic API key
+        env:
+          CODERABBIT_API_KEY: ${{ secrets.CODERABBIT_API_KEY }}
+        run: |
+          if [ -z "$CODERABBIT_API_KEY" ]; then
+            echo "::error::Set the CODERABBIT_API_KEY repository secret to a CodeRabbit Agentic API key."
+            exit 1
+          fi
+
+      - name: Checkout pull request
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Prepare comparison branches
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          git branch coderabbit-base "origin/$BASE_REF"
+          git switch -c coderabbit-review
+
+      - name: Install CodeRabbit CLI
+        run: |
+          set -euo pipefail
+          curl -fsSL https://cli.coderabbit.ai/install.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Run deep review and fail on any finding
+        shell: bash
+        env:
+          CODERABBIT_API_KEY: ${{ secrets.CODERABBIT_API_KEY }}
+        run: |
+          set -euo pipefail
+          coderabbit review --deep --agent --committed --base coderabbit-base \
+            --api-key "$CODERABBIT_API_KEY" | tee "$RUNNER_TEMP/coderabbit.ndjson"
+
+          if ! jq -e -s '
+            (map(select(.type == "complete")) | length) == 1 and
+            (map(select(.type == "complete")) | .[0] |
+              .status == "review_completed" and
+              (.outcome // "completed") != "failed" and
+              (.unreviewedFileCount // 0) == 0 and
+              .findings == 0) and
+            (map(select(.type == "finding" or .type == "error")) | length) == 0
+          ' "$RUNNER_TEMP/coderabbit.ndjson"; then
+            echo "::error::CodeRabbit found an issue or did not complete the review."
+            exit 1
+          fi
